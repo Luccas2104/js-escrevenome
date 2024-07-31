@@ -1,0 +1,83 @@
+# js-escrevenome
+import pygame
+import sys
+
+# Inicialize o pygame
+pygame.init()
+
+# Configurações da tela
+LARGURA, ALTURA = 800, 600
+TELA = pygame.display.set_mode((LARGURA, ALTURA))
+pygame.display.set_caption('Pong')
+
+# Cores
+BRANCO = (255, 255, 255)
+PRETO = (0, 0, 0)
+
+# Configurações das raquetes e bola
+RAQUETE_LARGURA, RAQUETE_ALTURA = 10, 100
+RAQUETE_VELOCIDADE = 5
+BOLA_TAMANHO = 20
+BOLA_VELOCIDADE_X = 5
+BOLA_VELOCIDADE_Y = 5
+
+# Função para desenhar a raquete
+def desenhar_raquete(x, y):
+    pygame.draw.rect(TELA, BRANCO, pygame.Rect(x, y, RAQUETE_LARGURA, RAQUETE_ALTURA))
+
+# Função para desenhar a bola
+def desenhar_bola(x, y):
+    pygame.draw.ellipse(TELA, BRANCO, pygame.Rect(x, y, BOLA_TAMANHO, BOLA_TAMANHO))
+
+# Função principal do jogo
+def jogo():
+    raquete1_x, raquete1_y = 10, (ALTURA - RAQUETE_ALTURA) // 2
+    raquete2_x, raquete2_y = LARGURA - RAQUETE_LARGURA - 10, (ALTURA - RAQUETE_ALTURA) // 2
+    bola_x, bola_y = (LARGURA - BOLA_TAMANHO) // 2, (ALTURA - BOLA_TAMANHO) // 2
+    bola_vel_x, bola_vel_y = BOLA_VELOCIDADE_X, BOLA_VELOCIDADE_Y
+
+    relogio = pygame.time.Clock()
+
+    while True:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        # Movimentação das raquetes
+        teclas = pygame.key.get_pressed()
+        if teclas[pygame.K_w] and raquete1_y > 0:
+            raquete1_y -= RAQUETE_VELOCIDADE
+        if teclas[pygame.K_s] and raquete1_y < ALTURA - RAQUETE_ALTURA:
+            raquete1_y += RAQUETE_VELOCIDADE
+        if teclas[pygame.K_UP] and raquete2_y > 0:
+            raquete2_y -= RAQUETE_VELOCIDADE
+        if teclas[pygame.K_DOWN] and raquete2_y < ALTURA - RAQUETE_ALTURA:
+            raquete2_y += RAQUETE_VELOCIDADE
+
+        # Movimentação da bola
+        bola_x += bola_vel_x
+        bola_y += bola_vel_y
+
+        # Colisões com o topo e o fundo
+        if bola_y <= 0 or bola_y >= ALTURA - BOLA_TAMANHO:
+            bola_vel_y = -bola_vel_y
+
+        # Colisão com as raquetes
+        if (bola_x <= raquete1_x + RAQUETE_LARGURA and raquete1_y < bola_y + BOLA_TAMANHO and raquete1_y + RAQUETE_ALTURA > bola_y):
+            bola_vel_x = -bola_vel_x
+        if (bola_x >= raquete2_x - BOLA_TAMANHO and raquete2_y < bola_y + BOLA_TAMANHO and raquete2_y + RAQUETE_ALTURA > bola_y):
+            bola_vel_x = -bola_vel_x
+
+        # Atualize a tela
+        TELA.fill(PRETO)
+        desenhar_raquete(raquete1_x, raquete1_y)
+        desenhar_raquete(raquete2_x, raquete2_y)
+        desenhar_bola(bola_x, bola_y)
+        pygame.display.flip()
+
+        # Limite de frames por segundo
+        relogio.tick(60)
+
+if __name__ == "__main__":
+    jogo()
